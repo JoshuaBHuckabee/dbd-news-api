@@ -1,0 +1,21 @@
+{
+  "name": "dbd-news-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Dead by Daylight News &amp; Events Aggregator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "dev": "npx nodemon src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.12.2",
+    "cheerio": "^1.1.2",
+    "express": "^5.1.0",
+    "node-cron": "^4.2.1"
+  }
+}
