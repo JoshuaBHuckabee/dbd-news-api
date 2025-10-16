@@ -1,7 +1,9 @@
 // src/scrapers/youtube.js
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
 
-const API_KEY = "AIzaSyAJwu8hmbdK4_VTLUwPe_CgCaWV34dibNk";
+const API_KEY = process.env.YOUTUBE_API_KEY;
 const CHANNEL_ID = "UCaSgsFdGbwjfdawl3rOXiwQ"; // Behaviour's official channel
 
 export default async function youtubeScraper() {
