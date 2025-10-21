@@ -1,50 +1,74 @@
-# Dead by Daylight News API - TODO List
+# Dead by Daylight News API — Refactored TODO List
 
 ## Current Progress
-- Basic Express server with `/news` endpoint
-- YouTube scraper fetching latest videos from DBD official channel
-- JSON file storage with deduplication
-- Nodemon configured with ignore rules to prevent restart loops
+ - Basic Express server with /news endpoint
+ - YouTube scraper fetching latest videos
+ - JSON file storage (soon to be replaced)
+ - Nodemon for dev
 
-## Planned Features
+## 1. Design and Set Up Unified Data Model
+ - Choose DB (SQLite for now via Prisma)
+ - Define unified schema for NewsItem (see above)
+ - Create migration & test insert/query logic
+ - Write wrapper functions: addNewsItem(), getNews(), etc.
 
-1. **Migrate JSON storage to a proper database**
-   - Choose and set up SQLite / MongoDB / PostgreSQL
-   - Define schema for news items with necessary indexes
-   - Add data validation and timestamps
+## 2. Scrapers (One Module Per Source)
 
-2. **Add more scrapers for news sources**
-   - Official Dead by Daylight website RSS feed or updates page
-   - Social media platforms: Twitter, Facebook, Instagram
-   - Official game calendars, patch notes, or event pages
-
-3. **Improve API features**
-   - Filtering by source, date range, or type
-   - Pagination support on `/news` endpoint
-   - Serve media (images/thumbnails) efficiently
-
-4. **Enhance error handling and logging**
-   - Robust API key management and security
-   - Handle rate limiting and retry logic for scrapers
-   - Log scraping activities with timestamps
-
-5. **Set up automated scraping pipeline**
-   - Use cron jobs or serverless functions for periodic scrapes
-   - Update database automatically with new content
-
-6. **Write documentation and tests**
-   - README with setup instructions and API usage docs
-   - Unit and integration tests for scrapers and endpoints
-   - Configure GitHub Actions for CI/CD
-
-7. **Deploy the API**
-   - Deploy to hosting services like Heroku, Vercel, AWS, or DigitalOcean
-   - Manage environment variables securely (API keys, DB credentials)
+| Source        | Status       | Tasks                                                                 |
+|---------------|--------------|------------------------------------------------------------------------|
+| **YouTube**   | ✅ Basic     | - [ ] Add thumbnails<br>- [ ] Regex for codes                          |
+| **Twitter**   | ⏳ Planned   | - [ ] Choose API/scraper<br>- [ ] Parse tweets                         |
+| **Instagram** | ⏳ Planned   | - [ ] Puppeteer/cheerio script                                         |
+| **Official Site** | ⏳ Planned | - [ ] RSS or static scraper                                           |
+| **Steam/Forum**   | ⏳ Planned | - [ ] Use RSS or cheerio                                              |
+| **Reddit**    | ⏳ Planned   | - [ ] Pushshift / Reddit API                                          |
+| **Event Pages** | ⏳ Bonus    | - [ ] Scrape calendar if public                                       |
 
 ---
+
+- Each scraper should return an array of **`NewsItem`-compatible objects**.
+- Deduplication is handled via the `url` field in the database (`@unique` constraint).
+
+
+## 3. Database Migration and Cleanup
+ - Replace JSON file system with DB-only storage
+ - Migrate existing data if needed
+ - Add indexes (e.g., by code, source, publishedAt)
+
+## 4. Improve /news API
+ - Filter by source, code, date, type
+ - Pagination (?page=1&limit=10)
+ - Add /codes endpoint (only entries with codes)
+ - Add /sources endpoint (list available sources)
+
+## 5. Security & Resilience
+ - Handle rate limiting (e.g., with axios-retry)
+ - Centralized error logging per scraper
+ - .env for API keys and secrets
+ - Mask or redact codes in public if needed
+
+## 6. Automation
+ - Add node-cron job to run scrapers hourly
+ - Write runAllScrapers() to orchestrate jobs
+ - Log new items or detected codes
+
+## 7. Testing & Documentation
+ - Unit test each scraper (mock HTML/API)
+ - Integration test /news endpoint
+ - Markdown docs: README.md, API.md, SCRAPERS.md
+ - Optional: Swagger/OpenAPI spec
+
+## 8. Deployment
+ - Choose host (Render / Railway / Fly.io / Vercel)
+ - Store .env securely
+ - Set up database and cron tasks in production
+
+## Final Touches (for Thesis)
+ - Add a dashboard or UI (basic React app?)
+ - Export data as CSV or RSS feed
+ - Timeline view of patch notes / codes / events
 
 ## Notes
 
 Feel free to update this TODO list as the project evolves.  
 Pull requests and contributions are welcome!
-
