@@ -44,19 +44,21 @@ A unified news aggregator for Dead by Daylight events, patch notes, codes, and m
 
 ### 2. Scrapers (One Module Per Source)
 
-Each scraper returns an array of `NewsItem`-compatible objects.
+We now focus exclusively on sources with **official APIs** or structured feeds.
 
-| Source         | Status       | Tasks |
-|----------------|--------------|-------|
-| **YouTube**    | ✅ Working   | [ ] Regex for codes in video descriptions |
-| **Twitter**    | ✅ Working   | [ ] Improve code parsing |
-| **Instagram**  | 🕐 Planned   | [ ] Puppeteer/cheerio scraper |
-| **Official Site** | 🕐 Planned | [ ] RSS or cheerio scraping |
-| **Steam/Forums** | 🕐 Planned | [ ] RSS or static scraper |
-| **Reddit**     | 🕐 Planned   | [ ] Pushshift or Reddit API |
-| **Event Calendar Pages** | 🕐 Bonus | [ ] Scrape upcoming events/timers |
+### Current API sources implemented:
+- [x] YouTube (latest videos)
+- [ ] Steam News (use Steam Web API)
+- [ ] Reddit (JSON endpoint)
+- [ ] Official DBD site (RSS feed)
 
-All scrapers save to DB using the shared `saveData()` utility.
+### Deferred / Manual Sources:
+- [ ] Instagram
+- [ ] TikTok
+- [ ] Facebook
+- [ ] Discord Announcements
+
+We will insert these manually or revisit them after v1.
 
 ---
 
