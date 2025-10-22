@@ -1,51 +1,60 @@
-// src/scrapers/steam.js
-
 import axios from "axios";
-import { PrismaClient } from "@prisma/client";
+import { load } from "cheerio";        
+import prisma from "../lib/prisma.js";
 
-const prisma = new PrismaClient();
+const STEAM_NEWS_URL = "https://store.steampowered.com/feeds/news/app/381210/";
 
 export default async function steamScraper() {
   try {
-    const res = await axios.get("https://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/", {
-      params: {
-        appid: 381210, // DBD App ID
-        count: 5,
-        maxlength: 1000,
-        format: "json"
+    const res = await axios.get(STEAM_NEWS_URL);
+    const xml = res.data;
+
+    const $ = load(xml, { xmlMode: true });
+
+    const items = $("item").slice(0, 5).map((_, el) => {
+      const title = $(el).find("title").text();
+      const link = $(el).find("link").text();
+      const rawDescription = $(el).find("description").text();
+      const pubDate = new Date($(el).find("pubDate").text());
+      const imageUrl = $(el).find("enclosure").attr("url") || null;
+
+      let decodedContent;
+      try {
+        decodedContent = JSON.parse(`"${rawDescription.replace(/"/g, '\\"')}"`);
+      } catch {
+        decodedContent = rawDescription;
       }
-    });
 
-    const newsItems = res.data.appnews.newsitems;
+      const $$ = load(decodedContent);
+      const cleanText = $$.text().trim();
 
-    const formatted = newsItems.map(item => ({
-      title: item.title,
-      content: item.contents,
-      url: item.url,
-      imageUrl: null, // Steam doesn't provide image directly
-      source: "Steam",
-      contentType: "text", // or 'update'
-      publishedAt: new Date(item.date * 1000), // Convert Unix timestamp
-      code: null
-    }));
+      return {
+        title,
+        content: cleanText,
+        url: link,
+        imageUrl,
+        publishedAt: pubDate,
+        source: "Steam",
+        contentType: "text",
+        code: null,
+      };
+    }).get();
 
-    console.log(`📰 Scraped ${formatted.length} Steam posts`);
+    console.log(`Scraped ${items.length} Steam posts`);
 
-    // Save to DB using upsert
-    for (const item of formatted) {
+    for (const item of items) {
       try {
         await prisma.newsItem.upsert({
           where: { url: item.url },
           update: {},
-          create: item
+          create: item,
         });
       } catch (err) {
-        console.error("Failed to save Steam post:", item.url, err.message);
+        console.error("Failed to insert Steam post:", item.url, err.message);
       }
     }
 
-    await prisma.$disconnect();
-    console.log(`Saved ${formatted.length} Steam items`);
+    console.log(`Saved ${items.length} Steam items`);
   } catch (err) {
     console.error("Steam scrape failed:", err.message);
   }

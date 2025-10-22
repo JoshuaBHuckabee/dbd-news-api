@@ -3,7 +3,8 @@
 
 // Import scrapers
 import youtubeScraper from "../src/scrapers/youtube.js";
-import steamScraper from "../src/scrapers/steam.js"; // Add others as needed
+import steamScraper from "../src/scrapers/steam.js";
+// Add others as needed
 
 // Mapping of available scrapers
 const available = {

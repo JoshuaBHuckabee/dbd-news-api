@@ -1,3 +1,5 @@
+import prisma from "../lib/prisma.js";
+
 export default async function twitterScraper() {
   
   // Static tweets for now, while I figure out the API situation.
