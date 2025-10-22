@@ -1,26 +1,32 @@
-// src/utils/saveData.js
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { PrismaClient } from "@prisma/client";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const filePath = path.join(__dirname, "../db/data.json");
+const prisma = new PrismaClient();
 
-export async function saveData(newItems) {
-  let existing = [];
-  if (fs.existsSync(filePath)) {
-    existing = JSON.parse(fs.readFileSync(filePath));
+export async function saveData(newsItems) {
+  let savedCount = 0;
+
+  for (const item of newsItems) {
+    try {
+      await prisma.newsItem.upsert({
+        where: { url: item.url }, // deduplicate based on unique URL
+        update: {}, // do nothing if already exists
+        create: {
+          title: item.title,
+          content: item.content,
+          url: item.url,
+          imageUrl: item.imageUrl ?? null,
+          source: item.source,
+          contentType: item.contentType,
+          code: item.code ?? null,
+          publishedAt: new Date(item.publishedAt),
+        },
+      });
+
+      savedCount++;
+    } catch (err) {
+      console.error(`Failed to save item (${item.url}): ${err.message}`);
+    }
   }
 
-  // prevent duplicates by URL
-  const urls = new Set(existing.map(i => i.url));
-  const merged = [...existing];
-
-  newItems.forEach(item => {
-    if (!urls.has(item.url)) merged.push(item);
-  });
-
-  fs.writeFileSync(filePath, JSON.stringify(merged, null, 2));
-  console.log(`✅ Saved ${newItems.length} new items`);
+  console.log(`Saved ${savedCount} new item(s)`);
 }
