@@ -42,6 +42,8 @@ Each `newsItem` includes:
 }
 ```
 
+---
+
 ## Setup Instructions
 
 ### 1. Clone the respository
@@ -69,6 +71,8 @@ YOUTUBE_API_KEY=your_api_key_here
 npx prisma migrate dev --name init
 ```
 
+---
+
 ## Manual Scraping
 
 You control when scraping happens!
@@ -85,6 +89,8 @@ node scripts/run-scrapers.js steam
 ```bash
 node scripts/run-scrapers.js all
 ```
+
+---
 
 ## API Usage
 
@@ -104,6 +110,8 @@ GET /api/news?source=Steam&type=text&page=1&limit=5
 
 This would return the first 5 news items from Steam with content type "text".
 
+---
+
 ## Project Structure
 
 <pre>
@@ -117,6 +125,8 @@ dbd-news-api/
 │   ├── utils/            # Shared helpers
 ├── README.md
 </pre>
+
+---
 
 ## TODO/Next Steps
 - [ ] Add Reddit support
