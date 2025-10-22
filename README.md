@@ -4,17 +4,17 @@ A Node.js + Prisma project that aggregates Dead by Daylight news from multiple o
 
 ---
 
-## 🚀 Features
+## Features
 
-- ✅ Scrapes latest YouTube videos from Behaviour's official channel
-- ✅ Pulls tweets from DBD Twitter (e.g. promo codes)
-- ✅ Stores all news in a clean, deduplicated database (SQLite via Prisma)
-- ✅ `/api/news` endpoint with filtering and pagination
-- ✅ Unified data format across all sources
+- Scrapes latest YouTube videos from Behaviour's official channel
+- Pulls tweets from DBD Twitter (e.g. promo codes)
+- Stores all news in a clean, deduplicated database (SQLite via Prisma)
+- `/api/news` endpoint with filtering and pagination
+- Unified data format across all sources
 
 ---
 
-## 📦 Tech Stack
+## Tech Stack
 
 - Node.js + Express
 - Prisma ORM + SQLite (local dev)
@@ -23,7 +23,7 @@ A Node.js + Prisma project that aggregates Dead by Daylight news from multiple o
 
 ---
 
-## 🧠 Data Model
+## Data Model
 
 All news items follow this schema:
 

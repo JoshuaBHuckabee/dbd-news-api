@@ -1,74 +1,136 @@
-# Dead by Daylight News API — Refactored TODO List
+# 🎯 Dead by Daylight News API – TODO List
 
-## Current Progress
- - Basic Express server with /news endpoint
- - YouTube scraper fetching latest videos
- - JSON file storage (soon to be replaced)
- - Nodemon for dev
-
-## 1. Design and Set Up Unified Data Model
- - Choose DB (SQLite for now via Prisma)
- - Define unified schema for NewsItem (see above)
- - Create migration & test insert/query logic
- - Write wrapper functions: addNewsItem(), getNews(), etc.
-
-## 2. Scrapers (One Module Per Source)
-
-| Source        | Status       | Tasks                                                                 |
-|---------------|--------------|------------------------------------------------------------------------|
-| **YouTube**   | ✅ Basic     | - [ ] Add thumbnails<br>- [ ] Regex for codes                          |
-| **Twitter**   | ⏳ Planned   | - [ ] Choose API/scraper<br>- [ ] Parse tweets                         |
-| **Instagram** | ⏳ Planned   | - [ ] Puppeteer/cheerio script                                         |
-| **Official Site** | ⏳ Planned | - [ ] RSS or static scraper                                           |
-| **Steam/Forum**   | ⏳ Planned | - [ ] Use RSS or cheerio                                              |
-| **Reddit**    | ⏳ Planned   | - [ ] Pushshift / Reddit API                                          |
-| **Event Pages** | ⏳ Bonus    | - [ ] Scrape calendar if public                                       |
+A unified news aggregator for Dead by Daylight events, patch notes, codes, and media across all major platforms.
 
 ---
 
-- Each scraper should return an array of **`NewsItem`-compatible objects**.
-- Deduplication is handled via the `url` field in the database (`@unique` constraint).
+## Current Progress
 
+- Express server with `/api/news` endpoint
+- YouTube scraper (Prisma DB + upsert logic)
+- Twitter scraper working and saving to DB
+- Pagination, filtering by `source`, `type`
+- Prisma database + schema implemented
+- Nodemon for auto-reload in dev
+- `.env` used for API keys (YouTube, Twitter, etc.)
+- Prisma migrations tracked in Git
 
-## 3. Database Migration and Cleanup
- - Replace JSON file system with DB-only storage
- - Migrate existing data if needed
- - Add indexes (e.g., by code, source, publishedAt)
+---
 
-## 4. Improve /news API
- - Filter by source, code, date, type
- - Pagination (?page=1&limit=10)
- - Add /codes endpoint (only entries with codes)
- - Add /sources endpoint (list available sources)
+## Features by Area
 
-## 5. Security & Resilience
- - Handle rate limiting (e.g., with axios-retry)
- - Centralized error logging per scraper
- - .env for API keys and secrets
- - Mask or redact codes in public if needed
+### 1. Database: Unified Schema
 
-## 6. Automation
- - Add node-cron job to run scrapers hourly
- - Write runAllScrapers() to orchestrate jobs
- - Log new items or detected codes
+**Model: `NewsItem`**
 
-## 7. Testing & Documentation
- - Unit test each scraper (mock HTML/API)
- - Integration test /news endpoint
- - Markdown docs: README.md, API.md, SCRAPERS.md
- - Optional: Swagger/OpenAPI spec
+| Field | Type | Description |
+|-------|------|-------------|
+| id | String (UUID) | Primary key |
+| title | String | Short title |
+| content | String? | Description or body |
+| url | String (unique) | Original link |
+| imageUrl | String? | Thumbnail or preview |
+| source | String | "YouTube", "Twitter", etc. |
+| contentType | String | "video", "code", "update", etc. |
+| code | String? | Promo/redeem code, if present |
+| publishedAt | DateTime | Original publish timestamp |
+| createdAt | DateTime | DB timestamp |
 
-## 8. Deployment
- - Choose host (Render / Railway / Fly.io / Vercel)
- - Store .env securely
- - Set up database and cron tasks in production
+- Implemented via Prisma schema  
+- Deduplication by `url` using `.upsert()`  
+- Auto timestamps
 
-## Final Touches (for Thesis)
- - Add a dashboard or UI (basic React app?)
- - Export data as CSV or RSS feed
- - Timeline view of patch notes / codes / events
+---
 
-## Notes
+### 2. Scrapers (One Module Per Source)
 
-Feel free to update this TODO list as the project evolves.  
-Pull requests and contributions are welcome!
+Each scraper returns an array of `NewsItem`-compatible objects.
+
+| Source         | Status       | Tasks |
+|----------------|--------------|-------|
+| **YouTube**    | ✅ Working   | [ ] Regex for codes in video descriptions |
+| **Twitter**    | ✅ Working   | [ ] Improve code parsing |
+| **Instagram**  | 🕐 Planned   | [ ] Puppeteer/cheerio scraper |
+| **Official Site** | 🕐 Planned | [ ] RSS or cheerio scraping |
+| **Steam/Forums** | 🕐 Planned | [ ] RSS or static scraper |
+| **Reddit**     | 🕐 Planned   | [ ] Pushshift or Reddit API |
+| **Event Calendar Pages** | 🕐 Bonus | [ ] Scrape upcoming events/timers |
+
+All scrapers save to DB using the shared `saveData()` utility.
+
+---
+
+### 3. API Features
+
+**Endpoint:** `/api/news`
+
+| Feature | Status |
+|--------|--------|
+| GET all news | ✅ |
+| Filter by `source` | ✅ |
+| Filter by `type` | ✅ |
+| Pagination (`page`, `limit`) | ✅ |
+| Sort by newest first | ✅ |
+| Add API docs | 🔜 Planned |
+| Add `/api/news/:id` | 🔜 Optional |
+
+---
+
+### 4. Developer Experience
+
+| Task | Status |
+|------|--------|
+| `.env` and dotenv config | ✅ |
+| Prisma + SQLite local DB | ✅ |
+| Modular folder structure | ✅ |
+| Dev server with Nodemon | ✅ |
+| Reusable `saveData()` for all scrapers | ✅ |
+| Prisma client re-used via `/lib/prisma.js` | ✅ |
+
+---
+
+### 5. Infrastructure & Automation
+
+| Feature | Status |
+|---------|--------|
+| Periodic scraping (cron or schedule) | 🔜 Planned |
+| GitHub Actions for lint/test/CI | 🔜 Planned |
+| Deploy API to Vercel / Fly.io / Render | 🔜 Planned |
+| Protect `.env` and secrets | ✅ |
+| Add `prisma/dev.db` to `.gitignore` | ✅ |
+
+---
+
+### 6. Testing
+
+| Task | Status |
+|------|--------|
+| Write scraper unit tests | 🕐 Not started |
+| Test database saving / deduplication | 🕐 |
+| Integration tests for `/api/news` | 🕐 |
+| Mocking external APIs | 🕐 |
+
+---
+
+### 7. Docs
+
+| Task | Status |
+|------|--------|
+| Update `README.md` with setup + usage | 🔄 In Progress |
+| Add example API responses | 🕐 |
+| Scraper dev guide | 🕐 |
+| Deployment instructions | 🕐 |
+
+---
+
+## Next Actions (Suggestion)
+
+1. Final cleanup: remove any unused `fs`, `data.json`, old logic
+2. Finalize README.md with current usage
+3. Test DB-saving from each scraper
+4. Add Steam or Website scraper
+5. Set up a scraping schedule (cron or interval)
+6. Prepare for deployment
+
+---
+
