@@ -4,10 +4,26 @@ An open-source aggregator API for tracking **Dead by Daylight** news updates acr
 
 ---
 
+[![Node.js](https://img.shields.io/badge/node.js-18+-green?logo=node.js&logoColor=white)](https://nodejs.org/) 
+[![Express](https://img.shields.io/badge/express-4.x-black?logo=express&logoColor=white)](https://expressjs.com/) 
+[![Prisma](https://img.shields.io/badge/prisma-4.x-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/) 
+[![SQLite](https://img.shields.io/badge/sqlite-3.41-blue?logo=sqlite&logoColor=white)](https://www.sqlite.org/index.html) 
+[![Axios](https://img.shields.io/badge/axios-1.6.2-5A29E4?logo=axios&logoColor=white)](https://axios-http.com/) 
+[![Cheerio](https://img.shields.io/badge/cheerio-1.0.0-orange?logo=cheerio&logoColor=white)](https://cheerio.js.org/) 
+[![dotenv](https://img.shields.io/badge/dotenv-latest-black?logo=dotenv&logoColor=white)](https://www.npmjs.com/package/dotenv)
+
+---
+
+[![YouTube](https://img.shields.io/badge/YouTube-news-red?logo=youtube&logoColor=white)](https://www.youtube.com/channel/UCaSgsFdGbwjfdawl3rOXiwQ) 
+[![Steam](https://img.shields.io/badge/Steam-news-000000?logo=steam&logoColor=white)](https://store.steampowered.com/app/381210) 
+[![Website](https://img.shields.io/badge/Dead_by_Daylight-website-FF4500?logo=ghost&logoColor=white)](https://deadbydaylight.com/news)
+
+
+
 ## Features
 
-- Scrapes news from official platforms (YouTube, Steam)
-- Stores structured news items in a **SQLite database**
+- Scrapes news from official platforms (YouTube, Steam, and DeadByDaylight official website)
+- Stores structured news items in a **SQLite database** via Prisma
 - Simple API to fetch, filter, and paginate news
 - Run scrapers **manually** when needed — no auto-fetching
 - Deduplicates based on `url` so no double posts
@@ -17,7 +33,7 @@ An open-source aggregator API for tracking **Dead by Daylight** news updates acr
 
 - Node.js + Express
 - Prisma ORM + SQLite (local dev)
-- Axios, Cheerio (scraping)
+- Axios, Cheerio, fast-xml-parser (scraping)
 - dotenv for API keys
 
 ## Database
@@ -68,6 +84,8 @@ YOUTUBE_API_KEY=your_api_key_here
 ```bash
 npx prisma migrate dev --name init
 ```
+Prisma client is available in `src/lib/prisma.js`
+All scrapers save to DB via `src/utils/saveData.js`
 
 ## Manual Scraping
 
@@ -78,6 +96,7 @@ You control when scraping happens!
 ```bash
 node scripts/run-scrapers.js youtube
 node scripts/run-scrapers.js steam
+node scripts/run-scrapers.js website
 ```
 
 ### Run all scrapers
@@ -85,6 +104,7 @@ node scripts/run-scrapers.js steam
 ```bash
 node scripts/run-scrapers.js all
 ```
+All scrapers fetch news and then save to DB via `saveData.js`. Each scraper only returns an array of news items; the saving is handled centrally.
 
 ## API Usage
 

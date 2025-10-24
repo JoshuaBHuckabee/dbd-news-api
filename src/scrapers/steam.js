@@ -1,14 +1,16 @@
 import axios from "axios";
-import { load } from "cheerio";        
-import prisma from "../lib/prisma.js";
+import { load } from "cheerio";
 
-const STEAM_NEWS_URL = "https://store.steampowered.com/feeds/news/app/381210/";
-
+/**
+ * Scrapes the latest Steam news for Dead by Daylight.
+ * Returns an array of news items matching the Prisma schema.
+ */
 export default async function steamScraper() {
+  const STEAM_NEWS_URL = "https://store.steampowered.com/feeds/news/app/381210/";
+
   try {
     const res = await axios.get(STEAM_NEWS_URL);
     const xml = res.data;
-
     const $ = load(xml, { xmlMode: true });
 
     const items = $("item").slice(0, 5).map((_, el) => {
@@ -18,6 +20,7 @@ export default async function steamScraper() {
       const pubDate = new Date($(el).find("pubDate").text());
       const imageUrl = $(el).find("enclosure").attr("url") || null;
 
+      // Decode HTML entities
       let decodedContent;
       try {
         decodedContent = JSON.parse(`"${rawDescription.replace(/"/g, '\\"')}"`);
@@ -41,21 +44,9 @@ export default async function steamScraper() {
     }).get();
 
     console.log(`Scraped ${items.length} Steam posts`);
-
-    for (const item of items) {
-      try {
-        await prisma.newsItem.upsert({
-          where: { url: item.url },
-          update: {},
-          create: item,
-        });
-      } catch (err) {
-        console.error("Failed to insert Steam post:", item.url, err.message);
-      }
-    }
-
-    console.log(`Saved ${items.length} Steam items`);
+    return items; // <-- just return array, don't save
   } catch (err) {
     console.error("Steam scrape failed:", err.message);
+    return [];
   }
 }

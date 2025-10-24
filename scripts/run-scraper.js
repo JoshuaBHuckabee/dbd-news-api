@@ -1,22 +1,20 @@
 // Manual scraper runner
 // Usage: node scripts/run-scrapers.js [source|all]
+// website: 'https://deadbydaylight.com/news'
 
-// Import scrapers
 import youtubeScraper from "../src/scrapers/youtube.js";
 import steamScraper from "../src/scrapers/steam.js";
-// Add others as needed
+import websiteScraper from "../src/scrapers/website.js";
+import { saveData } from "../src/utils/saveData.js"; // import saveData
 
-// Mapping of available scrapers
 const available = {
   youtube: youtubeScraper,
   steam: steamScraper,
-  // future: add reddit, twitter, etc.
+  website: websiteScraper,
 };
 
-// Get the scraper name from command-line args
 const arg = process.argv[2];
 
-// Show help if invalid input
 if (!arg || (!available[arg] && arg !== "all")) {
   console.log(`
 Please specify a valid scraper name:
@@ -25,6 +23,7 @@ Usage: node scripts/run-scrapers.js [source|all]
 Available scrapers:
   - youtube
   - steam
+  - website
 
 Or run all:
   node scripts/run-scrapers.js all
@@ -32,28 +31,28 @@ Or run all:
   process.exit(1);
 }
 
-// Run all scrapers if 'all' is specified
-if (arg === "all") {
-  console.log("Running all scrapers...\n");
+async function runScraper(name) {
+  console.log(`Running '${name}' scraper...`);
+  const items = await available[name](); // scraper returns array
+  await saveData(items);                // save all items through saveData
+  console.log(`'${name}' scraper complete.\n`);
+}
 
-  for (const [name, scraper] of Object.entries(available)) {
+(async () => {
+  if (arg === "all") {
+    for (const name of Object.keys(available)) {
+      try {
+        await runScraper(name);
+      } catch (err) {
+        console.error(`${name} scraper failed:`, err.message);
+      }
+    }
+    console.log("All scrapers complete.");
+  } else {
     try {
-      console.log(`Running '${name}' scraper...`);
-      await scraper();
+      await runScraper(arg);
     } catch (err) {
-      console.error(`${name} scraper failed:`, err.message);
+      console.error(`${arg} scraper failed:`, err.message);
     }
   }
-
-  console.log("\nAll scrapers complete.");
-  process.exit(0);
-}
-
-// Run a single scraper
-console.log(`Running '${arg}' scraper...`);
-try {
-  await available[arg]();
-  console.log(`'${arg}' scraper complete.`);
-} catch (err) {
-  console.error(`'${arg}' scraper failed:`, err.message);
-}
+})();
