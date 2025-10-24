@@ -58,6 +58,8 @@ Each `newsItem` includes:
 }
 ```
 
+---
+
 ## Setup Instructions
 
 ### 1. Clone the respository
@@ -87,6 +89,8 @@ npx prisma migrate dev --name init
 Prisma client is available in `src/lib/prisma.js`
 All scrapers save to DB via `src/utils/saveData.js`
 
+---
+
 ## Manual Scraping
 
 You control when scraping happens!
@@ -106,6 +110,8 @@ node scripts/run-scrapers.js all
 ```
 All scrapers fetch news and then save to DB via `saveData.js`. Each scraper only returns an array of news items; the saving is handled centrally.
 
+---
+
 ## API Usage
 
 <b>GET</b> `/api/news`
@@ -124,6 +130,8 @@ GET /api/news?source=Steam&type=text&page=1&limit=5
 
 This would return the first 5 news items from Steam with content type "text".
 
+---
+
 ## Project Structure
 
 <pre>
@@ -137,6 +145,8 @@ dbd-news-api/
 │   ├── utils/            # Shared helpers
 ├── README.md
 </pre>
+
+---
 
 ## TODO/Next Steps
 - [ ] Add Reddit support
