@@ -116,6 +116,8 @@ All scrapers fetch news and then save to DB via `saveData.js`. Each scraper only
 
 <b>GET</b> `/api/news`
 
+Fetch news items from the database with optional pagination and filtering.
+
 ### Query Parameters
 - `source` ( optional ) - Filter by source ( `YouTube`, `Steam`, etc )
 - `type` ( optional ) - Filter by content type ( `video`, `text`, `code` )
@@ -131,6 +133,70 @@ GET /api/news?source=Steam&type=text&page=1&limit=5
 This would return the first 5 news items from Steam with content type "text".
 
 ---
+
+<b>GET</b> `/api/news/latest`
+
+Fetch the latest news items, sorted by most recent.
+
+### Query Parameters
+
+- `limit` ( optional, default: 5 ) - Number of items to fetch
+
+### Example Request
+
+```http
+GET /api/news/latest?limit=3
+```
+Returns the 3 most recent news items.
+
+---
+
+<b>GET</b> `/api/news/source/:source`
+
+Fetch news items filtered by source platform.
+
+### URL Parameters
+- `source` - The name of the source to filter by ( `YouTube`, `Steam`, etc )
+
+### Query Parameters
+- `limit` - ( optional, default: `10` ) - Number of items to fetch
+
+### Example Request
+
+```http
+GET /api/news/source/YouTube?limit=5
+```
+Returns the 5 most recent news items from YouTube.
+
+If no items found, returns:
+
+```json
+{ "error": "No news found for source: YouTube" }
+```
+
+---
+
+<b>GET</b> `/api/news/:id`
+
+Fetch a single news item by its unique ID.
+
+### URL Parameters
+
+- `id` - The unique identifier of the news item
+
+### Example Request
+
+```http
+GET /api/news/cmh56fnia0000uyk068jn2ome
+```
+
+Returns the news item matching the provided ID.
+
+If not found, returns:
+
+```json
+{ "error": "News item not found" }
+```
 
 ## Project Structure
 
