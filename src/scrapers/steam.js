@@ -1,18 +1,45 @@
+// ------------------------------------------------------------
+// Scraper: Steam News
+// ------------------------------------------------------------
+// Fetches the latest Dead by Daylight news from Steam's official
+// RSS feed and returns an array of news items formatted to match
+// the Prisma schema.
+// ------------------------------------------------------------
+
 import axios from "axios";
 import { load } from "cheerio";
 
 /**
  * Scrapes the latest Steam news for Dead by Daylight.
- * Returns an array of news items matching the Prisma schema.
+ * ------------------------------------------------------------
+ * - Fetches RSS feed XML from Steam.
+ * - Parses XML to extract the latest 5 news items.
+ * - Cleans HTML content and returns structured news objects.
+ *
+ * @async
+ * @function steamScraper
+ * @returns {Promise<Array<Object>>} Array of news item objects
+ * @property {string} source - Platform name ("Steam")
+ * @property {string} title - News title
+ * @property {string} content - News description or snippet
+ * @property {string} url - Direct URL to the news post
+ * @property {string|null} imageUrl - News image or thumbnail
+ * @property {string} contentType - Type of content ("text")
+ * @property {string|null} code - Optional field for platform-specific ID
+ * @property {Date} publishedAt - Publication date
  */
 export default async function steamScraper() {
   const STEAM_NEWS_URL = "https://store.steampowered.com/feeds/news/app/381210/";
 
   try {
+    // Fetch the RSS feed XML
     const res = await axios.get(STEAM_NEWS_URL);
     const xml = res.data;
+
+    // Load XML using Cheerio in XML mode
     const $ = load(xml, { xmlMode: true });
 
+    // Extract the first 5 news items
     const items = $("item").slice(0, 5).map((_, el) => {
       const title = $(el).find("title").text();
       const link = $(el).find("link").text();
@@ -20,7 +47,7 @@ export default async function steamScraper() {
       const pubDate = new Date($(el).find("pubDate").text());
       const imageUrl = $(el).find("enclosure").attr("url") || null;
 
-      // Decode HTML entities
+      // Decode HTML entities in the description
       let decodedContent;
       try {
         decodedContent = JSON.parse(`"${rawDescription.replace(/"/g, '\\"')}"`);
@@ -28,6 +55,7 @@ export default async function steamScraper() {
         decodedContent = rawDescription;
       }
 
+      // Strip HTML tags to get plain text
       const $$ = load(decodedContent);
       const cleanText = $$.text().trim();
 
@@ -43,8 +71,11 @@ export default async function steamScraper() {
       };
     }).get();
 
+    // Log number of items scraped
     console.log(`Scraped ${items.length} Steam posts`);
-    return items; // <-- just return array, don't save
+
+    // Return structured array; saving is handled elsewhere
+    return items;
   } catch (err) {
     console.error("Steam scrape failed:", err.message);
     return [];
