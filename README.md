@@ -168,12 +168,6 @@ GET /api/news/source/YouTube?limit=5
 ```
 Returns the 5 most recent news items from YouTube.
 
-If no items found, returns:
-
-```json
-{ "error": "No news found for source: YouTube" }
-```
-
 ---
 
 <b>GET</b> `/api/news/:id`
@@ -191,12 +185,6 @@ GET /api/news/cmh56fnia0000uyk068jn2ome
 ```
 
 Returns the news item matching the provided ID.
-
-If not found, returns:
-
-```json
-{ "error": "News item not found" }
-```
 
 ## Project Structure
 
