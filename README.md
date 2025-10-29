@@ -207,4 +207,5 @@ dbd-news-api/
 - [ ] Add input form or CLI for manual posts (e.g. Instagram)
 - [ ] Add updatedAt tracking for edited posts
 - [ ] Add webhook to post new content to Discord
+- [x] Clean up content field from steam post
 - [ ] Deploy to Vercel / Railway / Fly.io

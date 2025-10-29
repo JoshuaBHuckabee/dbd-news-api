@@ -41,23 +41,49 @@ export default async function steamScraper() {
 
     // Extract the first 5 news items
     const items = $("item").slice(0, 5).map((_, el) => {
-      const title = $(el).find("title").text();
-      const link = $(el).find("link").text();
-      const rawDescription = $(el).find("description").text();
-      const pubDate = new Date($(el).find("pubDate").text());
-      const imageUrl = $(el).find("enclosure").attr("url") || null;
+    const title = $(el).find("title").text();
+    const link = $(el).find("link").text();
+    const rawDescription = $(el).find("description").text();
+    const pubDate = new Date($(el).find("pubDate").text());
+    const imageUrl = $(el).find("enclosure").attr("url") || null;
 
-      // Decode HTML entities in the description
-      let decodedContent;
-      try {
-        decodedContent = JSON.parse(`"${rawDescription.replace(/"/g, '\\"')}"`);
-      } catch {
-        decodedContent = rawDescription;
-      }
+    // Parse description HTML
+    const desc$ = load(rawDescription);
 
-      // Strip HTML tags to get plain text
-      const $$ = load(decodedContent);
-      const cleanText = $$.text().trim();
+    // --- Preserve section headers (.bb_h2 and .bb_h3) ---
+    desc$(".bb_h2, .bb_h3").each((_, el) => {
+      const text = desc$(el).text().trim();
+      desc$(el).replaceWith(`<b>${text}</b>\n\n`);
+    });
+
+    // --- Convert list items into bullet points ---
+    desc$("li").each((_, el) => {
+      const text = desc$(el).text().trim();
+      desc$(el).replaceWith(`- ${text}\n`);
+    });
+
+    // Extract modified HTML as text
+    let htmlWithFormatting = desc$.html() || "";
+
+    // --- Text cleanup rules ---
+    htmlWithFormatting = htmlWithFormatting
+      .replace(/\.([A-Z0-9])/g, ". $1") // add space after periods
+      .replace(/^Content\s*/i, "") // removed redundant prefix
+      .replace(/([a-z])The\s+([A-Z][a-z]+)/g, "$1. The $2"); // add missing period before capitalized The
+
+    // --- Reload formatted HTML and process <b> tags as Markdown ---
+    const $final = load(htmlWithFormatting);
+
+    $final("b").each((_, el) => {
+      $final(el).replaceWith(`**${$final(el).text().trim()}**\n\n`);
+    });
+
+    // --- Extract final text with headers and bullet points preserved ---
+    let cleanText = $final.text()
+      .replace(/\r?\n\s*\n/g, "\n\n") // normalize multiple newlines
+      .replace(/\s+\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
 
       return {
         title,
