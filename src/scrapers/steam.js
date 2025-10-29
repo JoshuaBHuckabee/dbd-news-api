@@ -62,6 +62,14 @@ export default async function steamScraper() {
       desc$(el).replaceWith(`- ${text}\n`);
     });
 
+    // --- Add spacing between paragraphs and handle <br> tags ---
+    desc$("p, br").each((_, el) => {
+      const text = desc$(el).text().trim();
+      if (text.length > 0) {
+        desc$(el).replaceWith(`${text}\n\n`);
+      }
+    });
+
     // Extract modified HTML as text
     let htmlWithFormatting = desc$.html() || "";
 
