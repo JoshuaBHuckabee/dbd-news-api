@@ -30,31 +30,59 @@ import * as cheerio from "cheerio";
  * @property {Date} publishedAt - Publication date
  */
 export default async function websiteScraper() {
-  const sitemapUrl = "https://deadbydaylight.com/sitemap/sitemap-0.xml";
+  const sitemapUrl = "https://deadbydaylight.com/sitemap/";
 
   try {
     console.log("Fetching sitemap...");
-    const res = await axios.get(sitemapUrl);
-    const parser = new XMLParser();
-    const parsed = parser.parse(res.data);
+    const { data: sitemapData, headers } = await axios.get(sitemapUrl);
 
-    // Extract URLs from sitemap, handle single or multiple entries
-    const urls = Array.isArray(parsed.urlset.url)
-      ? parsed.urlset.url.map((entry) => entry.loc)
-      : [parsed.urlset.url.loc];
+    let urls = [];
 
-    const limitedUrls = urls.slice(0, 5); // Limit to latest 5 articles
-    console.log(`Found ${limitedUrls.length} article URLs`);
+    
+    // Detect if sitemap is XML or HTML
+    const isXml =
+      headers["content-type"]?.includes("xml") ||
+      sitemapData.trim().startsWith("<?xml");
+
+    if (isXml) {
+      // Parse XML sitemap
+      const parser = new XMLParser();
+      const parsed = parser.parse(sitemapData);
+      urls = Array.isArray(parsed.urlset?.url)
+        ? parsed.urlset.url.map((entry) => entry.loc)
+        : parsed.urlset?.url?.loc
+        ? [parsed.urlset.url.loc]
+        : [];
+    } else {
+      // Parse HTML sitemap page
+      const $ = cheerio.load(sitemapData);
+
+      // Likely structure: <a href="https://deadbydaylight.com/news/...">Title</a>
+      $("a[href]").each((_, el) => {
+        const href = $(el).attr("href");
+        if (href && href.includes("/news/")) {
+          // Normalize relative URLs
+          const fullUrl = href.startsWith("http")
+            ? href
+            : `https://deadbydaylight.com${href}`;
+          urls.push(fullUrl);
+        }
+      });
+    }
+
+    // Deduplicate and limit
+    urls = [...new Set(urls)].slice(0, 5);
+    console.log(`Found ${urls.length} article URLs`);
 
     const results = [];
 
-    // Fetch and parse each article page
-    for (const url of limitedUrls) {
+    // Scrape each article page
+    for (const url of urls) {
       try {
         const { data: html } = await axios.get(url);
         const $ = cheerio.load(html);
 
-        // Attempt to extract metadata from JSON-LD
+        // Attempt to extract metadata via JSON-LD
         let jsonLdData;
         const jsonLd = $('script[type="application/ld+json"]').first().html();
         if (jsonLd) {
@@ -65,12 +93,18 @@ export default async function websiteScraper() {
           }
         }
 
-        // Extract fields with fallback logic
+        // Extract fields with fallbacks
         const title =
           jsonLdData?.headline ||
           $("h1").first().text().trim() ||
           $('meta[property="og:title"]').attr("content") ||
           "Untitled";
+
+        // Skip static “Latest News” link
+        if (/^latest news$/i.test(title.trim())) {
+          console.log(`Skipping static page: ${title}`);
+          continue;
+        }
 
         const publishedAtRaw =
           jsonLdData?.datePublished ||
@@ -89,9 +123,11 @@ export default async function websiteScraper() {
           $("p").first().text().trim() ||
           "";
 
-        const publishedAt = publishedAtRaw ? new Date(publishedAtRaw) : new Date();
+        const publishedAt = publishedAtRaw
+          ? new Date(publishedAtRaw)
+          : new Date();
 
-        // Push structured news item
+        // Push structured item
         results.push({
           source: "DeadByDaylight Website",
           title,
@@ -109,10 +145,10 @@ export default async function websiteScraper() {
       }
     }
 
-    console.log(`Scraped ${results.length} website articles successfully.`);
-    return results; // Only return array; saving is handled elsewhere
+    console.log(`✅ Scraped ${results.length} website articles successfully.`);
+    return results;
   } catch (err) {
-    console.error("Website scrape failed:", err.message);
+    console.error("❌ Website scrape failed:", err.message);
     return [];
   }
 }
