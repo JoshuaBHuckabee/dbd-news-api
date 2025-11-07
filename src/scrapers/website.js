@@ -9,6 +9,7 @@
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
 import * as cheerio from "cheerio";
+import { detectContentType } from "../utils/detectContentType.js";
 
 /**
  * Scrapes the latest Dead by Daylight news articles from the official website.
@@ -127,14 +128,18 @@ export default async function websiteScraper() {
           ? new Date(publishedAtRaw)
           : new Date();
 
+        // --- NEW: Detect content type ---
+        const contentType = detectContentType(title, "Website");
+        console.log(`Detected "${title}" as type: ${contentType}`);
+
         // Push structured item
         results.push({
-          source: "DeadByDaylight Website",
+          source: "Website",
           title,
           content: snippet,
           url,
           imageUrl,
-          contentType: "text",
+          contentType,
           code: null,
           publishedAt,
         });
@@ -145,10 +150,10 @@ export default async function websiteScraper() {
       }
     }
 
-    console.log(`✅ Scraped ${results.length} website articles successfully.`);
+    console.log(`Scraped ${results.length} website articles successfully.`);
     return results;
   } catch (err) {
-    console.error("❌ Website scrape failed:", err.message);
+    console.error("Website scrape failed:", err.message);
     return [];
   }
 }

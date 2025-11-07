@@ -8,6 +8,7 @@
 
 import axios from "axios";
 import { load } from "cheerio";
+import { detectContentType } from "../utils/detectContentType.js";
 
 /**
  * Scrapes the latest Steam news for Dead by Daylight.
@@ -100,7 +101,7 @@ export default async function steamScraper() {
         imageUrl,
         publishedAt: pubDate,
         source: "Steam",
-        contentType: "text",
+        contentType: detectContentType(title, "Steam"),
         code: null,
       };
     }).get();
