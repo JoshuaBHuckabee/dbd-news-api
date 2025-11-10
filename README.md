@@ -38,7 +38,10 @@ An open-source aggregator API for tracking **Dead by Daylight** news updates acr
 
 ## Database
 
-Powered by [Prisma](https://www.prisma.io/) and SQLite.
+
+Powered by [Prisma](https://www.prisma.io/) and [Neon PostgreSQL](https://neon.com/).
+
+Originally built with SQLite, now upgraded to a managed Postgres backend.
 
 Each `newsItem` includes:
 
@@ -79,6 +82,7 @@ npm install
 
 ```env
 YOUTUBE_API_KEY=your_api_key_here
+DATABASE_URL=your_postgres_connection_string
 ```
 
 ### 4. Set up the database
@@ -207,5 +211,6 @@ dbd-news-api/
 - [ ] Add input form or CLI for manual posts (e.g. Instagram)
 - [ ] Add updatedAt tracking for edited posts
 - [ ] Add webhook to post new content to Discord
+- [x] Move to Neon PostgreSQL
 - [x] Clean up content field from steam post
-- [ ] Deploy to Vercel / Railway / Fly.io
+- [ ] Deploy to Render

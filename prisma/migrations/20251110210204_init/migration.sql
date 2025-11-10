@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "NewsItem" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "title" TEXT,
     "content" TEXT,
     "url" TEXT NOT NULL,
@@ -8,8 +8,10 @@ CREATE TABLE "NewsItem" (
     "source" TEXT NOT NULL,
     "contentType" TEXT NOT NULL,
     "code" TEXT,
-    "publishedAt" DATETIME NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "publishedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "NewsItem_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
