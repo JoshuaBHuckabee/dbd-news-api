@@ -23,7 +23,7 @@ An open-source aggregator API for tracking **Dead by Daylight** news updates acr
 ## Features
 
 - Scrapes news from official platforms (YouTube, Steam, and DeadByDaylight official website)
-- Stores structured news items in a **SQLite database** via Prisma
+- Stores structured news items in a **Neon PostgreSQL database** via Prisma
 - Simple API to fetch, filter, and paginate news
 - Run scrapers **manually** when needed — no auto-fetching
 - Deduplicates based on `url` so no double posts
@@ -32,7 +32,7 @@ An open-source aggregator API for tracking **Dead by Daylight** news updates acr
 ## Tech Stack
 
 - Node.js + Express
-- Prisma ORM + SQLite (local dev)
+- Prisma ORM + Neon PostgreSQL
 - Axios, Cheerio, fast-xml-parser (scraping)
 - dotenv for API keys
 
