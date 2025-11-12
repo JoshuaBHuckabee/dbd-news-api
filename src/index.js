@@ -6,15 +6,13 @@
 // starts the application on the defined port.
 // ------------------------------------------------------------
 
+import "dotenv/config";
 import express from "express";
 import newsRoutes from "./routes/news.js";
 import prisma from "./lib/prisma.js"; 
 
 // Create an Express application instance
 const app = express();
-
-// Define the port number for the server to listen on
-const PORT = 3000;
 
 /**
  * API Routes
@@ -32,8 +30,11 @@ app.use("/api/news", newsRoutes);
  * Responds with a simple message to confirm the server is running.
  */
 app.get("/", (req, res) => {
-  res.send("DBD News API is running. Try /api/news");
+  res.send(`DBD News API is running in ${process.env.NODE_ENV}`);
 });
+
+// Define the port number for the server to listen on
+const PORT = process.env.PORT || 3000;
 
 /**
  * Server Startup
