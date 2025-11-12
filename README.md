@@ -4,6 +4,21 @@ An open-source aggregator API for tracking **Dead by Daylight** news updates acr
 
 ---
 
+## Release Notes
+
+### v1.0.0 – Initial Release (2025-11-12)
+
+This is the first official release of the **Dead by Daylight News API**, providing:
+
+- Aggregated news from YouTube, Steam, and official DBD website
+- Structured API endpoints for `/news`, `/news/latest`, `/news/source/:source`
+- Full pagination and filtering support
+- Fast database queries via Prisma + PostgreSQL
+
+> **Note:** Internal IDs (cUIDs) are not exposed. Endpoints return news sorted by most recent first.
+
+---
+
 [![Node.js](https://img.shields.io/badge/node.js-18+-green?logo=node.js&logoColor=white)](https://nodejs.org/) 
 [![Express](https://img.shields.io/badge/express-4.x-black?logo=express&logoColor=white)](https://expressjs.com/) 
 [![Prisma](https://img.shields.io/badge/prisma-4.x-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/) 
@@ -213,4 +228,4 @@ dbd-news-api/
 - [ ] Add webhook to post new content to Discord
 - [x] Move to Neon PostgreSQL
 - [x] Clean up content field from steam post
-- [ ] Deploy to Render
+- [x] Deploy to Render
